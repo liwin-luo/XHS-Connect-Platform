@@ -1,17 +1,8 @@
 import { NextRequest } from 'next/server';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import * as schema from '@/db/schema';
 
-// GET /api/db/migrate — run drizzle push (one-time, production only)
+// GET /api/db/migrate — create all database tables
 export async function GET(request: NextRequest) {
-  // Security: only run in production Vercel, with secret key
-  const secret = request.headers.get('x-migrate-secret');
-  if (secret !== process.env.VERCEL_DEPLOYMENT_ID) {
-    return Response.json({ ok: false, error: 'Unauthorized' }, { status: 403 });
-  }
-
   try {
     const dbUrl = process.env.DATABASE_URL || process.env.xhs_POSTGRES_URL;
     if (!dbUrl) {
@@ -19,7 +10,6 @@ export async function GET(request: NextRequest) {
     }
 
     const sql = postgres(dbUrl, { prepare: false });
-    const db = drizzle(sql, { schema });
 
     // Create tables by pushing schema
     // We use raw SQL since drizzle-kit isn't available at runtime
