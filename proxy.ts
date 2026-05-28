@@ -7,7 +7,7 @@ const ALLOWED_ORIGINS = [
   /^https:\/\/[\w-]+\.vercel\.app$/,
 ];
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   // Only handle API routes
   if (!request.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();
